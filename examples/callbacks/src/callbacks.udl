@@ -1,4 +1,6 @@
-namespace callbacks {};
+namespace callbacks {
+  void run_huge_task(ProgressReporter reporter);
+};
 
 [Error]
 enum TelephoneError {
@@ -15,4 +17,8 @@ interface Telephone {
 callback interface CallAnswerer {
   [Throws=TelephoneError]
   string answer();
+};
+
+callback interface ProgressReporter {
+  void report_progress(f32 progress);
 };

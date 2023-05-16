@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import Dispatch
+
 #if canImport(callbacks)
     import callbacks
 #endif
@@ -47,3 +49,26 @@ do {
 } catch TelephoneError.InternalTelephoneError {
     // Expected error
 }
+
+class ProgressReporterImpl : ProgressReporter {
+    let continuation: CheckedContinuation<(), Never>
+    init(withContinuation: CheckedContinuation<(), Never>) {
+        continuation = withContinuation
+    }
+    func reportProgress(progress: Float) {
+        print("Progress: \(progress * 100)%")
+        if (progress == 1.0) {
+            continuation.resume(returning: ())
+        }
+    }
+}
+
+let group = DispatchGroup()
+group.enter()
+Task {
+    await withCheckedContinuation {
+        runHugeTask(reporter: ProgressReporterImpl(withContinuation: $0))
+    }
+    group.leave()
+}
+group.wait()

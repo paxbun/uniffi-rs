@@ -34,4 +34,23 @@ impl Telephone {
     }
 }
 
+
+trait ProgressReporter: Send + Sync {
+    fn report_progress(&self, progress: f32);
+}
+
+fn run_huge_task(reporter: Box<dyn ProgressReporter>) {
+    fn report_progress(reporter: Box<dyn ProgressReporter>, current_progress: i32) {
+        reporter.report_progress(current_progress as f32 / 1000.0);
+        if current_progress < 1000 {
+            std::thread::spawn(move || {
+                report_progress(reporter, current_progress + 1);
+            });
+        }
+    }
+    std::thread::spawn(move || {
+        report_progress(reporter, 0);
+    });
+}
+
 include!(concat!(env!("OUT_DIR"), "/callbacks.uniffi.rs"));
