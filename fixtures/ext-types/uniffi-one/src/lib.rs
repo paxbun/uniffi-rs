@@ -1,4 +1,8 @@
-use std::sync::atomic::{AtomicI32, Ordering};
+use std::sync::{atomic::{AtomicI32, Ordering}, Arc};
+
+pub struct UniffiOneRecordContainingInterface {
+    pub inner: Arc<UniffiOneInterface>,
+}
 
 pub struct UniffiOneType {
     pub sval: String,
