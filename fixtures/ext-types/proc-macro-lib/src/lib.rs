@@ -2,11 +2,20 @@ use custom_types::Handle;
 use ext_types_custom::{Guid, Ouid2};
 use std::sync::Arc;
 use uniffi_one::{
-    UniffiOneEnum, UniffiOneInterface, UniffiOneProcMacroType, UniffiOneTrait, UniffiOneType,
+    UniffiOneEnum, UniffiOneInterface, UniffiOneProcMacroType, UniffiOneRecordContainingInterface,
+    UniffiOneTrait, UniffiOneType,
 };
 use url::Url;
 
 uniffi::use_remote_type!(custom_types::Url);
+
+#[derive(uniffi::Record)]
+pub struct RecordContainingInterface2 {
+    // This does not generate .destroy()
+    pub inner: UniffiOneRecordContainingInterface,
+    // This is fine
+    // pub inner: Arc<UniffiOneInterface>,
+}
 
 #[derive(uniffi::Record)]
 pub struct CombinedType {

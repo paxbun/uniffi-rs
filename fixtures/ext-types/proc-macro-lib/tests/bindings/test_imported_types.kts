@@ -6,6 +6,10 @@ import kotlinx.coroutines.runBlocking
 import uniffi.imported_types_lib.*
 import uniffi.uniffi_one_ns.*
 
+fun destroyRecordContainingInterface2(record2: RecordContainingInterface2) {
+    record2.destroy()
+}
+
 val ct = getCombinedType(null)
 assert(ct.uot.sval == "hello")
 assert(ct.guid ==  "a-guid")
