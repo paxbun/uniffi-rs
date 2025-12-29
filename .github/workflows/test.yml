@@ -1,0 +1,35 @@
+name: Build and run tests on Windows and macOS
+
+on:
+  push:
+    branches: ["test/url-2.5.7-link-error-reproduction"]
+
+jobs:
+  build-and-test:
+    name: Build and run tests
+    strategy:
+      fail-fast: false
+      matrix:
+        runner:
+          - windows-latest
+          - macos-latest
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Check out the main branch
+        uses: actions/checkout@v4
+      - name: Download the Kotlin command-line compiler
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://github.com/JetBrains/kotlin/releases/download/v2.3.0/kotlin-compiler-2.3.0.zip -OutFile kotlin-compiler-2.3.0.zip | Out-Null;
+          Expand-Archive kotlin-compiler-2.3.0.zip -Destination .;
+          "$pwd/kotlinc" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append;
+      - name: Download the required JAR files
+        shell: pwsh
+        run: |
+          New-Item -Type Directory -Name classes | Out-Null;
+          Invoke-WebRequest https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.13.0/jna-5.13.0.jar -OutFile classes/jna.jar | Out-Null;
+          Invoke-WebRequest https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core-jvm/1.6.4/kotlinx-coroutines-core-jvm-1.6.4.jar -OutFile classes/kotlinx-coroutines-core-jvm.jar | Out-Null;
+          $separator = [System.IO.Path]::PathSeparator;
+          "CLASSPATH=$pwd/classes/jna.jar${separator}$pwd/classes/kotlinx-coroutines-core-jvm.jar" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append;
+      - name: Run the unit test
+        run: cargo test --package uniffi-fixture-ext-types --test test_generated_bindings -- uniffi_foreign_language_testcase_test_imported_types_kts --exact --show-output
