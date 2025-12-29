@@ -114,7 +114,11 @@ fn build_jar(
 }
 
 fn kotlinc_command(options: &RunScriptOptions) -> Command {
-    let mut command = Command::new("kotlinc");
+    let mut command = Command::new(if cfg!(target_os = "windows") {
+        "kotlinc.bat"
+    } else {
+        "kotlinc"
+    });
     if !options.show_compiler_messages {
         command.arg("-nowarn");
     }
