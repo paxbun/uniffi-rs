@@ -126,12 +126,19 @@ fn kotlinc_command(options: &RunScriptOptions) -> Command {
 }
 
 fn calc_classpath(extra_paths: Vec<&Utf8Path>) -> String {
-    extra_paths
-        .into_iter()
-        .map(|p| p.to_string())
-        // Add the system classpath as a component, using the fact that env::var returns an Option,
-        // which implement Iterator
-        .chain(env::var("CLASSPATH"))
-        .collect::<Vec<String>>()
-        .join(":")
+    let classpath = env::var("CLASSPATH");
+    env::join_paths(
+        extra_paths
+            .into_iter()
+            .map(|p| p.to_path_buf().into_std_path_buf())
+            .chain(
+                classpath
+                    .as_ref()
+                    .iter()
+                    .flat_map(|classpath| env::split_paths(classpath)),
+            ),
+    )
+    .unwrap()
+    .to_string_lossy()
+    .to_string()
 }
