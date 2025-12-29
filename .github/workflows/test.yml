@@ -33,3 +33,6 @@ jobs:
           "CLASSPATH=$pwd/classes/jna.jar${separator}$pwd/classes/kotlinx-coroutines-core-jvm.jar" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append;
       - name: Run the unit test
         run: cargo test --package uniffi-fixture-ext-types --test test_generated_bindings -- uniffi_foreign_language_testcase_test_imported_types_kts --exact --show-output
+      - name: Run the swift unit test
+        if: ${{ matrix.runner == 'macos-latest' }}
+        run: cargo test --package uniffi-fixture-ext-types --test test_generated_bindings -- uniffi_foreign_language_testcase_test_imported_types_swift --exact --show-output
